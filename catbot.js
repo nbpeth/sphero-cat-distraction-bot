@@ -1,6 +1,24 @@
 
 const MAX_SPEED = 255;
 const MIN_SPEED = 1;
+const CRUISE_SPEED = 75;
+
+const FULL_CIRCLE_DEGREES = 360;
+const LEFT_TURN_ANGLE = 90;
+const RIGHT_TURN_ANGLE = -90;
+const REVERSE_ANGLE = 180;
+
+const DIRECTION_CHOICE_COUNT = 3;
+const SPRINT_ODDS = 4;
+const TAUNT_ODDS = 10;
+
+const STUCK_VELOCITY_THRESHOLD = 5;
+
+const VARIABLE_SPRINT_DURATION_SECONDS = 3;
+const TAUNT_SPRINT_DURATION_SECONDS = 5;
+
+const TAUNT_PAUSE_DELAY_SECONDS = 5;
+const CYCLE_DELAY_SECONDS = 1;
 
 let index = 0;
 
@@ -24,7 +42,7 @@ const getTotalVelocity = () => {
 }
 
 const setNewHeading = (angleAdjust) => {
-    let newHeading = (getHeading() - angleAdjust + 360) % 360;
+    let newHeading = (getHeading() - angleAdjust + FULL_CIRCLE_DEGREES) % FULL_CIRCLE_DEGREES;
     setHeading(newHeading);
 
     return newHeading;
@@ -37,25 +55,25 @@ const randomNumber = (floor, ceiling) => {
 const turnLeft = () => {
     setFrontLed(colors.darkRed)
     setBackLed(colors.darkBlue)
-    setNewHeading(90)
+    setNewHeading(LEFT_TURN_ANGLE)
 }
 
 const turnRight = () => {
     setFrontLed(colors.darkBlue);
     setBackLed(colors.darkRed);
 
-    setNewHeading(-90);
+    setNewHeading(RIGHT_TURN_ANGLE);
 }
 
 const reverse = () => {
     setFrontLed(colors.lime);
     setBackLed(colors.cyan);
 
-    setNewHeading(180);
+    setNewHeading(REVERSE_ANGLE);
 }
 
 const turnLeftOrRight = async () => {
-    const rando = randomNumber(0, 3);
+    const rando = randomNumber(0, DIRECTION_CHOICE_COUNT);
 
     if (rando % 3 === 0) {
         return turnLeft();
@@ -101,7 +119,7 @@ const unStick = async () => {
 async function checkIfStuck() {
     let totalVelocity = getTotalVelocity();
 
-    if (totalVelocity < 5) {
+    if (totalVelocity < STUCK_VELOCITY_THRESHOLD) {
         await unStick();
     }
 }
@@ -111,13 +129,13 @@ async function sprint(time) {
 }
 
 async function rollWithVariableSpeed() {
-    let random = randomNumber(0, 4);
-    let shouldSprint = random % 4 === 0;
+    let random = randomNumber(0, SPRINT_ODDS);
+    let shouldSprint = random % SPRINT_ODDS === 0;
 
     if (shouldSprint) {
-        await sprint(3)
+        await sprint(VARIABLE_SPRINT_DURATION_SECONDS)
     } else {
-        await roll(getHeading(), 75)
+        await roll(getHeading(), CRUISE_SPEED)
     }
 }
 
@@ -125,13 +143,13 @@ async function chaseMeProtocol() {
     setMainLed(colors.brightWhite);
         setIndex();
 
-        let random = randomNumber(0, 10);
-        if (random % 10 === 0) {
+        let random = randomNumber(0, TAUNT_ODDS);
+        if (random % TAUNT_ODDS === 0) {
             await stopRoll();
             setMainLed(colors.brightGreen);
-            await delay(5);
+            await delay(TAUNT_PAUSE_DELAY_SECONDS);
             await resetAim();
-            await sprint(5);
+            await sprint(TAUNT_SPRINT_DURATION_SECONDS);
         } else {
             await rollWithVariableSpeed();
         }
@@ -139,7 +157,7 @@ async function chaseMeProtocol() {
 
         checkIfStuck();
 
-        await delay(1);
+        await delay(CYCLE_DELAY_SECONDS);
 }
 
 async function startProgram() {
