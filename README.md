@@ -1,4 +1,4 @@
-# Sphero Cat Distraction Bot 🐱🤖
+# Sphero Cat Distraction Bot
 
 A JavaScript program that turns a [Sphero](https://sphero.com) robot into an autonomous cat toy. Drop it on the floor, run the program, and let the bot zip around the room — darting, sprinting, and changing direction to keep your cat entertained (and hopefully out of trouble).
 
