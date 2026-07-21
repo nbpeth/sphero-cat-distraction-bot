@@ -1,0 +1,11 @@
+{
+  "name": "sphero-cat-distraction-bot",
+  "version": "1.0.0",
+  "description": "An autonomous Sphero cat toy for the Sphero Edu JavaScript environment.",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
