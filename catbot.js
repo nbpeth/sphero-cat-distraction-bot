@@ -52,24 +52,34 @@ const randomNumber = (floor, ceiling) => {
   return Math.floor(Math.random() * ceiling) + floor;
 };
 
+const changeCourse = ({ frontColor, backColor, heading }) => {
+  setFrontLed(frontColor);
+  setBackLed(backColor);
+  setNewHeading(heading);
+};
+
 const turnLeft = () => {
-  setFrontLed(colors.darkRed);
-  setBackLed(colors.darkBlue);
-  setNewHeading(LEFT_TURN_ANGLE);
+  changeCourse({
+    frontColor: colors.darkRed,
+    backColor: colors.darkBlue,
+    heading: LEFT_TURN_ANGLE,
+  });
 };
 
 const turnRight = () => {
-  setFrontLed(colors.darkBlue);
-  setBackLed(colors.darkRed);
-
-  setNewHeading(RIGHT_TURN_ANGLE);
+  changeCourse({
+    frontColor: colors.darkBlue,
+    backColor: colors.darkRed,
+    heading: RIGHT_TURN_ANGLE,
+  });
 };
 
 const reverse = () => {
-  setFrontLed(colors.lime);
-  setBackLed(colors.cyan);
-
-  setNewHeading(REVERSE_ANGLE);
+  changeCourse({
+    frontColor: colors.lime,
+    backColor: colors.cyan,
+    heading: REVERSE_ANGLE,
+  });
 };
 
 const turnLeftOrRight = async () => {
@@ -88,7 +98,7 @@ const turnLeftOrRight = async () => {
 
 async function onCollision() {
   // await speak("ouch!");
-  setIndex();
+  // setIndex();
   setMainLed(colors.darkRed);
 
   turnLeftOrRight();
@@ -110,13 +120,15 @@ const unStick = async () => {
   setMainLed(colors.brightGreen);
 
   turnLeft();
+
   await roll(getHeading(), MAX_SPEED);
 };
 
 async function checkIfStuck() {
   let totalVelocity = getTotalVelocity();
+  const probabyStuckBecauseTooSlow = totalVelocity < STUCK_VELOCITY_THRESHOLD;
 
-  if (totalVelocity < STUCK_VELOCITY_THRESHOLD) {
+  if (probabyStuckBecauseTooSlow) {
     await unStick();
   }
 }
@@ -136,17 +148,23 @@ async function rollWithVariableSpeed() {
   }
 }
 
+async function taunt(params) {
+  await stopRoll();
+  setMainLed(colors.brightGreen);
+
+  await delay(TAUNT_PAUSE_DELAY_SECONDS);
+  await resetAim();
+
+  await sprint(TAUNT_SPRINT_DURATION_SECONDS);
+}
+
 async function chaseMeProtocol() {
   setMainLed(colors.brightWhite);
   setIndex();
 
   let random = randomNumber(0, TAUNT_ODDS);
   if (random % TAUNT_ODDS === 0) {
-    await stopRoll();
-    setMainLed(colors.brightGreen);
-    await delay(TAUNT_PAUSE_DELAY_SECONDS);
-    await resetAim();
-    await sprint(TAUNT_SPRINT_DURATION_SECONDS);
+    await taunt();
   } else {
     await rollWithVariableSpeed();
   }
